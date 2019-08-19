@@ -42,11 +42,11 @@ def _find_configuration_file(file_name):
 
 class PhpCsFixer(Linter):
     """Provides an interface to php-cs-fixer."""
+    name = 'php-cs-fixer'
 
     defaults = {
         'selector': 'source.php, text.html.basic'
     }
-    config_file = '.php_cs'
 
     regex = (
         r'^\s+\d+\)\s+.+\s+\((?P<message>.+)\)[^\@]*'
@@ -69,19 +69,16 @@ class PhpCsFixer(Linter):
     def cmd(self):
         """Read cmd from inline settings."""
 
+        command = ['php-cs-fixer']
         if 'cmd' in self.settings:
             logger.warning('The setting `cmd` has been deprecated. '
                            'Use `executable` instead.')
-            command = [self.settings.get('cmd')]
-        else:
-            command = ['php-cs-fixer']
+            command[0] = [self.settings.get('cmd')]
 
         if 'config_file' in self.settings:
             config_file = self.settings.get('config_file')
         else:
             config_file = _find_configuration_file(self.view.file_name())
-            if not config_file:
-                config_file = self.config_file
 
         command.append('fix')
         command.append('${temp_file}')
@@ -93,7 +90,9 @@ class PhpCsFixer(Linter):
 
         command.append('--using-cache=no')
         command.append('--no-ansi')
-        command.append('--config=' + config_file)
-        command.append('-vv')
+        command.append('-v')
+        if (config_file):
+            command.append('--config=' + config_file)
+        command.append('${args}')
 
         return command
