@@ -59,12 +59,10 @@ class PhpCsFixer(Linter):
 
     def split_match(self, match):
         """Extract and return values from match."""
-        match, line, col, error, warning, message, near = super().split_match(match)
+        error = super().split_match(match)
+        error.line += 3
 
-        line = line + 3
-        message = "php-cs-fixer error(s) - " + message
-
-        return match, line, col, error, warning, message, near
+        return error
 
     def cmd(self):
         """Read cmd from inline settings."""
